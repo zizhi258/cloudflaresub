@@ -125,9 +125,7 @@ export function parsePreferredEndpoints(inputText) {
   items.forEach((raw, index) => {
     try {
       const endpoint = parseEndpoint(raw);
-      const dedupeKey = endpoint.customHost
-        ? `${endpoint.host}:${endpoint.port || ''}@${endpoint.customHost}`
-        : `${endpoint.host}:${endpoint.port || ''}`;
+      const dedupeKey = `${endpoint.host}:${endpoint.port || ''}`;
       if (seen.has(dedupeKey)) {
         return;
       }
@@ -168,10 +166,7 @@ export function expandNodes(baseNodes, endpoints, options = {}) {
       clone.endpointLabel = endpoint.label || '';
       clone.endpointSource = `${endpoint.host}:${port}`;
 
-      if (endpoint.customHost !== undefined) {
-        clone.sni = endpoint.customHost;
-        clone.hostHeader = endpoint.customHost;
-      } else if (keepOriginalHost) {
+      if (keepOriginalHost) {
         clone.sni = baseNode.sni || baseNode.hostHeader || baseNode.originalServer || '';
         clone.hostHeader = baseNode.hostHeader || baseNode.sni || baseNode.originalServer || '';
       } else {
@@ -535,22 +530,13 @@ function parseEndpoint(rawLine) {
   const hashIndex = raw.indexOf('#');
   const hostPart = hashIndex >= 0 ? raw.slice(0, hashIndex).trim() : raw;
   const label = hashIndex >= 0 ? raw.slice(hashIndex + 1).trim() : '';
-
-  const atIdx = hostPart.indexOf('@');
-  let serverHostPart = hostPart;
-  let customHost = undefined;
-  if (atIdx !== -1) {
-    customHost = hostPart.slice(atIdx + 1).trim();
-    serverHostPart = hostPart.slice(0, atIdx).trim();
-  }
-
-  const { host, port } = splitHostAndPort(serverHostPart);
+  const { host, port } = splitHostAndPort(hostPart);
 
   if (!host) {
     throw new Error(`无效地址：${raw}`);
   }
 
-  return { host, port, label, customHost };
+  return { host, port, label };
 }
 
 function splitHostAndPort(input) {

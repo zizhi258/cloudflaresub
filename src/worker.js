@@ -51,18 +51,10 @@ function parsePreferredEndpoints(input) {
       const [raw, remark = ''] = line.split('#');
       const value = raw.trim();
       const hashRemark = remark.trim();
-      const atIdx = value.indexOf('@');
-      let serverPart = value;
-      let customHost = undefined;
-      if (atIdx !== -1) {
-        customHost = value.slice(atIdx + 1).trim();
-        serverPart = value.slice(0, atIdx).trim();
-      }
-      const match = serverPart.match(/^(.*?)(?::(\d+))?$/);
+      const match = value.match(/^(.*?)(?::(\d+))?$/);
       return {
-        server: match?.[1] || serverPart,
+        server: match?.[1] || value,
         port: match?.[2] ? Number(match[2]) : undefined,
-        host: customHost || undefined,
         remark: hashRemark,
       };
     });
@@ -150,14 +142,13 @@ function buildNodes(baseNodes, preferredEndpoints, options = {}) {
       if (prefix) nameParts.push(prefix);
       if (ep.remark) nameParts.push(ep.remark);
       else nameParts.push(String(counter));
-      const hasCustomHost = ep.host !== undefined;
       output.push({
         ...node,
         name: nameParts.join(' | '),
         server: ep.server,
         port: ep.port || node.port,
-        host: hasCustomHost ? ep.host : (options.keepOriginalHost ? node.host : ''),
-        sni: hasCustomHost ? ep.host : (options.keepOriginalHost ? node.sni : ''),
+        host: options.keepOriginalHost ? node.host : '',
+        sni: options.keepOriginalHost ? node.sni : '',
       });
     }
   }

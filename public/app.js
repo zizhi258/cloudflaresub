@@ -22,7 +22,7 @@ const demoVmess = [
 
 const demoIps = [
   '104.16.1.2#HK-01',
-  '104.17.2.3@mycdn.example.com#HK-02',
+  '104.17.2.3#HK-02',
   '104.18.3.4:2053#US-Edge'
 ].join('\n');
 
