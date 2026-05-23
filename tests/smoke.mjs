@@ -26,6 +26,11 @@ assert.equal(expanded.nodes[0].server, '104.16.1.2');
 assert.equal(expanded.nodes[0].hostHeader, 'edge.example.com');
 assert.equal(expanded.nodes[1].port, 2053);
 
+const { endpoints: customEndpoints } = parsePreferredEndpoints('104.16.1.2@custom-host.com#HK');
+const customExpanded = expandNodes(nodes, customEndpoints, { keepOriginalHost: true, namePrefix: 'CF' });
+assert.equal(customExpanded.nodes[0].hostHeader, 'custom-host.com');
+assert.equal(customExpanded.nodes[0].sni, 'custom-host.com');
+
 const raw = renderRawSubscription(expanded.nodes);
 assert.ok(raw.length > 10);
 
